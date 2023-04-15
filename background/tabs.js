@@ -11,7 +11,7 @@ let debug, debug2, debug3; options.debug.whenChange(([ value, ]) => { debug = va
  */
 // browser.tabs properties
 const exports = module.exports = {
-	update: Tabs.update, discard: Tabs.discard, query,
+	update: Tabs.update, discard: Tabs.discard, reload: Tabs.reload, query,
 	// get/query falling back to native Tabs while the module is disabled
 	getAsync() { return enabled ? tabs.get(...arguments) : Tabs.get(...arguments); },
 	queryAsync() { return enabled ? query(...arguments) : Tabs.query(...arguments); },

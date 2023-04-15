@@ -14,6 +14,12 @@ const unloadTreeMenu = {
 	contexts: [ 'tab', ],
 	viewTypes: [ 'sidebar', ],
 };
+const loadTreeMenu = {
+	id: 'loadTree',
+	title: 'Reload Tree',
+	contexts: [ 'tab', ],
+	viewTypes: [ 'sidebar', ],
+};
 
 const onError = console.error.bind(console, 'TST error');
 
@@ -30,6 +36,9 @@ async function register() {
 	}))));
 	(await Runtime.sendMessage(TST_ID, {
 		type: 'fake-contextMenu-create', params: unloadTreeMenu,
+	}));
+	(await Runtime.sendMessage(TST_ID, {
+		type: 'fake-contextMenu-create', params: loadTreeMenu,
 	}));
 }
 
@@ -58,6 +67,7 @@ return {
 		options.menus.children.unloadAllTabs.onChange.addListener(updateMenu);
 		register().catch(() => null); // may very well not be ready yet
 		Menus.create(unloadTreeMenu, () => Runtime.lastError && console.error('TST error (create native menu)', Runtime.lastError)); // (why doesn't this return a promise?!)
+		Menus.create(loadTreeMenu, () => Runtime.lastError && console.error('TST error (create native menu)', Runtime.lastError)); // (why doesn't this return a promise?!)
 	},
 	disable() {
 		Runtime.onMessageExternal.removeListener(onMessageExternal);
@@ -65,6 +75,7 @@ return {
 		options.menus.children.unloadAllTabs.onChange.removeListener(updateMenu);
 		Runtime.sendMessage(TST_ID, { type: 'unregister-self', }).catch(onError);
 		Menus.remove(unloadTreeMenu.id).catch(error => console.error('TST error (remove native menu)', error));
+		Menus.remove(loadTreeMenu.id).catch(error => console.error('TST error (remove native menu)', error));
 	},
 	async getChildren(tabId) {
 		const tree = (await Runtime.sendMessage(TST_ID, { type: 'get-tree', tab: tabId, }));

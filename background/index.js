@@ -89,6 +89,13 @@ async function onClicked({ menuItemId, }, { id, active, windowId, pinned, highli
 		onClicked.apply(null, arguments); // `unload` must not have its own `arguments`
 	}); };
 
+	const reload = tabs => { tabs.map(_=>Tabs.reload(_.id).catch(error => {
+		const match = (/^Invalid tab ID: (\d+)$/).exec(error && error.message);
+		if (!match || !Tabs.delete(+match[1])) { throw error; }
+		debug && console.wran(`[BUG] .onRemoved for tab ${match[1]} was never fired`);
+		// onClicked.apply(null, arguments); //
+	}));};
+
 	switch (menuItemId) {
 		case 'unloadTab': {
 			if (active || ids.length > 1) {
@@ -121,6 +128,9 @@ async function onClicked({ menuItemId, }, { id, active, windowId, pinned, highli
 				(await Promise.all(ids.map(id => tst.getChildren(id))))
 				.flat().filter(tab => !ids.includes(tab.id)) // for consistency, unload none of the selected roots, user can just follow up with `unloadTab` on the same selection
 			);
+		} break;
+		case 'loadTree': {
+			reload((await Promise.all(ids.map(id => tst.getChildren(id)))).flat());
 		} break;
 	}
 }
